@@ -1,0 +1,5 @@
+package-lock.json
+node_modules
+src/assets/downloads/**/*.mp3
+!src/assets/downloads/.gitkeep
+.qodo

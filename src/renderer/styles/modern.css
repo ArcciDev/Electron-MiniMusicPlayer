@@ -1,0 +1,1122 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+body {
+  background-color: #0c0e12;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevenir desplazamiento en el cuerpo principal */
+}
+
+.app-container {
+  width: 100%;
+  height: 100%;
+  background-color: #1a1d23;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  border: 1px solid #2a2e38;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #2a2e38;
+  -webkit-app-region: drag;
+  cursor: move;
+  user-select: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: #1a1d23;
+  height: 60px;
+  width: 100%;
+  pointer-events: auto;
+}
+
+/* Asegurar que todos los elementos dentro del título sean arrastrables */
+.app-header * {
+  -webkit-app-region: drag;
+  pointer-events: auto;
+}
+
+/* Excepciones para elementos interactivos */
+.window-controls,
+.window-button,
+.window-controls *,
+.window-button * {
+  -webkit-app-region: no-drag !important; /* Forzar no-drag en controles de ventana */
+  cursor: pointer;
+}
+
+/* Ajustar el título para que ocupe más espacio */
+.app-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1; /* Ocupar todo el espacio disponible */
+  cursor: move;
+  z-index: 1; /* Asegurar que estén por encima para el arrastre */
+}
+
+.app-title h1 {
+  -webkit-app-region: drag; /* Asegurar que el texto del título sea arrastrable */
+  cursor: move;
+  z-index: 1; /* Asegurar que estén por encima para el arrastre */
+}
+
+.app-icon {
+  background-color: #2a2e38;
+  padding: 8px;
+  border-radius: 6px;
+  -webkit-app-region: drag; /* Asegurar que el icono sea arrastrable */
+  cursor: move;
+  z-index: 1; /* Asegurar que estén por encima para el arrastre */
+}
+
+.window-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  -webkit-app-region: no-drag; /* Botones de control no arrastrables */
+}
+
+.window-button {
+  background: none;
+  border: none;
+  color: #6c7280;
+  cursor: pointer;
+  -webkit-app-region: no-drag; /* Botones individuales no arrastrables */
+}
+
+.window-button:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.app-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  margin-top: 60px; /* Espacio para el header */
+  height: calc(100% - 60px); /* Restar altura del header */
+  position: relative;
+  overflow-y: auto;
+}
+
+.sidebar {
+  width: 80px;
+  background-color: #1a1d23;
+  border-right: 1px solid #2a2e38;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 12px;
+  padding-bottom: 32px;
+  height: 100%;
+  overflow: hidden; /* Evitar scroll interno */
+  gap: 32px; /* Ajustar el espaciado entre botones */
+  margin-top: 0;
+}
+
+.sidebar-button {
+  background: none;
+  border: none;
+  color: #6c7280;
+  padding: 8px;
+  margin-bottom: 0; /* Quitar margen inferior ya que ahora usamos gap */
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-button:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-button.active {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+#download-btn::before, 
+#search-btn::before {
+  content: none;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+  overflow-y: auto;
+  height: calc(100% - 65px); /* Ajustado para mantener proporción correcta */
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-bottom: 50px;
+  padding-top: 70px; /* Espacio adicional para la barra de búsqueda fija */
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+  margin-top: 0; /* Quitado porque ya añadimos margen al app-content */
+  pointer-events: auto;
+  z-index: 1;
+  transition: padding-top 0.3s ease; /* Añadir transición suave */
+  transition: padding-bottom 0.3s ease;
+}
+
+/* Ajuste cuando la barra de búsqueda está oculta */
+.search-bar-container.hidden ~ .main-content {
+  padding-top: 20px; /* Reducir el padding cuando no hay barra de búsqueda */
+}
+
+.search-bar-container {
+  position: fixed;
+  top: 60px; /* La misma altura que el header */
+  left: 80px; /* El ancho de la sidebar */
+  border-left: 1px solid #2a2e38;
+  border-right: 1px solid #2a2e38;
+  right: 0;
+  background-color: #1a1d23;
+  padding: 16px;
+  z-index: 900;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.search-bar-container.hidden {
+  opacity: 0;
+  transform: translateY(-100%);
+  pointer-events: none;
+}
+
+/* Ajustar el padding-top del main-content cuando la barra de búsqueda está oculta */
+.search-bar-container.hidden ~ .main-content {
+  padding-top: 16px;
+}
+
+.search-bar {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.search-input {
+  flex: 1;
+  background-color: #12151a;
+  color: #d1d5db;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #2a2e38;
+  font-size: 16px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.search-button {
+  background-color: #2a2e38;
+  color: #ffffff;
+  border: none;
+  padding: 0 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.search-button:hover {
+  background-color: #3a3f4b;
+}
+
+.song-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: visible; /* Quitar cualquier scroll interno */
+}
+
+.song-item {
+  background-color: #12151a;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.song-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.song-thumbnail {
+  width: 64px;
+  height: 64px;
+  background-color: #2a2e38;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.song-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.check-icon {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background-color: #10b981;
+  border-radius: 50%;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.song-details h3 {
+  color: #ffffff;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.song-details p {
+  color: #6c7280;
+  font-size: 14px;
+}
+
+.song-actions {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.progress-bar {
+  width: 256px;
+  height: 4px;
+  background-color: #2a2e38;
+  border-radius: 9999px;
+}
+
+.progress {
+  width: 33%;
+  height: 100%;
+  background-color: #3b82f6;
+  border-radius: 9999px;
+}
+
+.song-duration {
+  color: #6c7280;
+}
+
+.download-button {
+  background-color: #2a2e38;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.download-button:hover {
+  background-color: #1b5ecf;
+  transform: translateY(-1px);
+}
+
+.play-button {
+  background-color: #10b981;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.play-button:hover {
+  background-color: #0d9669;
+  transform: translateY(-1px);
+}
+
+.app-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #6c7280;
+  padding: 16px;
+  border-top: 1px solid #2a2e38;
+  width: 100%;
+  background-color: #1a1d23;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 90; /* Alto, pero menor que el header */
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+  bottom: 0;
+  z-index: 90;
+}
+
+.location-button {
+  background: none;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.location-button:hover {
+  text-decoration: underline;
+}
+
+/* Estilos para el reproductor de audio */
+#player-container {
+  margin-top: 16px;
+  padding-bottom: 100px;
+  background-color: #12151a;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #2a2e38;
+  gap: 16px;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  overflow: visible;
+}
+
+#player-container.hidden {
+  display: none;
+}
+
+#player-container:not(.hidden) {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#audio-player {
+  width: 100%;
+  height: 40px;
+  border-radius: 8px;
+  margin-top: 16px;
+  background-color: #2a2e38;
+  display: none !important;
+  visibility: hidden !important;
+  position: absolute !important;
+  z-index: -1 !important;
+}
+
+.player-info {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+.album-cover {
+  width: 200px;
+  height: 200px;
+  background-color: #2a2e38;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.album-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.blue-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 16px;
+  height: 16px;
+  background-color: #3b82f6;
+  border-radius: 50%;
+}
+
+.song-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.song-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #ffffff;
+}
+
+.song-artist {
+  font-size: 16px;
+  color: #6c7280;
+  margin-bottom: 32px;
+}
+
+.progress-container {
+  margin-top: auto;
+}
+
+.progress-bar {
+  height: 8px;
+  background-color: #2a2e38;
+  border-radius: 9999px;
+  cursor: pointer;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.progress {
+  height: 100%;
+  background-color: #3b82f6;
+  border-radius: 9999px;
+  width: 0%;
+}
+
+.time-display {
+  display: flex;
+  justify-content: flex-end;
+  color: #6c7280;
+  font-size: 12px;
+  margin-top: 2px;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.player-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.control-buttons {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.control-button {
+  background: none;
+  border: none;
+  color: #6c7280;
+  cursor: pointer;
+}
+
+.control-button:hover {
+  color: #ffffff;
+}
+
+.play-button {
+  background-color: #1e2128;
+  border: none;
+  color: #ffffff;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.play-button:hover {
+  background-color: #2a2e38;
+}
+
+/* Estilos para la cuadrícula de resultados de búsqueda */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  width: 100%;
+  overflow-y: visible;
+  margin-bottom: 0; /* Eliminamos el margen inferior */
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+#results-container {
+  width: 100%;
+  margin-bottom: 16px;
+  margin-top: 8px;
+  overflow: visible; /* Asegurar que no tenga scroll interno */
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+#results-container h2 {
+  margin-bottom: 16px;
+  margin-top: 8px;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.result-card {
+  background-color: #1a1d23;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.result-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.result-card.playing {
+  border: 2px solid #3b82f6;
+}
+
+.result-card img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.result-info {
+  padding: 12px;
+}
+
+.result-title {
+  color: #ffffff;
+  font-size: 14px;
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.result-channel, .result-duration {
+  color: #6c7280;
+  font-size: 12px;
+}
+
+/* Estilos para mensajes de estado */
+#estado {
+  display: none;
+  visibility: hidden;
+  height: 0;
+  width: 0;
+  overflow: hidden;
+  opacity: 0;
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+}
+
+/* Ocultar elementos */
+.hidden {
+  display: none;
+}
+
+.hidden-audio {
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
+  z-index: -9999 !important;
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+}
+
+@media (max-width: 768px) {
+  .results-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  
+  .song-actions {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .progress-bar {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .app-title h1 {
+    font-size: 18px;
+  }
+  
+  .sidebar {
+    width: 60px;
+  }
+  
+  .main-content {
+    padding: 12px;
+  }
+  
+  .search-bar {
+    flex-direction: column;
+  }
+  
+  .results-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .app-footer {
+    width: calc(100% - 60px); /* Ajustar para barra lateral más estrecha en móviles */
+  }
+}
+
+/* Estilos para el arrastre de la ventana */
+.draggable-window .app-header {
+  -webkit-app-region: drag; /* Área principal para arrastrar ventana */
+}
+
+.draggable-window .sidebar {
+  -webkit-app-region: drag;
+}
+
+.draggable-window .app-footer {
+  -webkit-app-region: drag;
+}
+
+.draggable-window .main-content:empty {
+  -webkit-app-region: drag;
+}
+
+/* Los controles interactivos no deben permitir arrastrar */
+.draggable-window button,
+.draggable-window input,
+.draggable-window a,
+.draggable-window audio,
+.draggable-window .result-card,
+.draggable-window #player-container,
+.draggable-window .search-bar,
+.draggable-window .results-grid,
+.draggable-window .window-controls,
+.draggable-window .window-button,
+.draggable-window .sidebar-button {
+  -webkit-app-region: no-drag;
+}
+
+/* Estilos de cursor para diferentes elementos */
+.app-header {
+  cursor: move;
+}
+
+.sidebar {
+  cursor: move;
+}
+
+.app-footer {
+  cursor: move;
+}
+
+.window-button,
+.sidebar-button,
+button,
+a,
+.result-card {
+  cursor: pointer;
+}
+
+input {
+  cursor: text;
+}
+
+audio:hover {
+  cursor: pointer;
+}
+
+/* Personalización de la barra de desplazamiento */
+::-webkit-scrollbar {
+  width: 8px;
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-track {
+  background-color: rgba(26, 29, 35, 0.1);
+  border-radius: 4px;
+  margin: 1px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(85, 95, 120, 0.6);
+  border-radius: 4px;
+}
+
+/* Configuración de scroll suave para toda la aplicación */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Estilos compatibles con Chromium */
+.main-content {
+  padding-bottom: 50px;
+  transition: padding-bottom 0.3s ease;
+}
+
+.main-content:hover {
+}
+
+/* Asegurarnos de que el contenido principal tenga suficiente espacio para el scroll */
+.page {
+  width: 100%;
+  overflow: visible;
+  transition: padding 0.3s ease;
+}
+
+/* Resto de elementos del header */
+.app-header svg {
+  -webkit-app-region: drag;
+  pointer-events: none; /* Evitar problemas con SVG dentro del título */
+}
+
+/* Evitar conflictos con SVG en el header */
+.app-header svg {
+  pointer-events: none; /* Prevenir que los SVG interfieran con el arrastre */
+}
+
+/* Evitar superposición de z-index */
+.app-title,
+.app-icon,
+.app-title h1 {
+  z-index: 1; /* Asegurar que estén por encima para el arrastre */
+}
+
+/* Mejorar la experiencia de hover en botones de control */
+.window-button:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+/* Estilos para el reproductor fijo estilo Spotify */
+.player-fixed {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background-color: #111216;
+  border-top: 1px solid #2a2e38;
+  position: fixed;
+  bottom: 50px;
+  left: 0;
+  z-index: 91; /* Menor que el header pero mayor que el footer */
+  padding: 12px 16px;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  height: 90px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3); /* Añadimos sombra sutil */
+}
+
+.player-fixed:not(.hidden) {
+  transform: translateY(0);
+}
+
+/* Ajustar el margen inferior de la barra de scroll cuando el reproductor está visible */
+.player-fixed:not(.hidden) ~ .main-content {
+  padding-bottom: 0; /* Eliminamos completamente el padding inferior */
+}
+
+.player-fixed-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.player-song-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 32%;
+  min-width: 200px;
+}
+
+.player-thumbnail {
+  width: 110px;
+  height: auto;
+  aspect-ratio: 16/9;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  margin-right: 4px;
+}
+
+.player-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.player-text-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.player-text-info h4 {
+  color: #ffffff;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-text-info p {
+  color: #6c7280;
+  margin: 4px 0 0;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-center-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 38%;
+  justify-content: center; /* Centrar verticalmente */
+  margin-bottom: -4px; /* Ajustar posición vertical para centrar */
+}
+
+.player-buttons {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 10px;
+  margin-top: 6px;
+}
+
+.control-button {
+  background: none;
+  border: none;
+  color: #8c8c8c;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.control-button:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.play-button-small {
+  background-color: #1e2128;
+  color: #ffffff;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.play-button-small:hover {
+  background-color: #2a2e38;
+}
+
+.progress-container-small {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 20px; /* Añadimos padding horizontal */
+  margin-top: 4px; /* Ajustamos la distancia de los botones */
+}
+
+.progress-container-small .progress-bar {
+  height: 4px; /* Reducimos un poco la altura para que sea más estilizado */
+  width: 100%;
+  margin-bottom: 3px;
+  background-color: #2a2e38;
+  border-radius: 9999px;
+  cursor: pointer;
+}
+
+.progress-container-small .progress {
+  height: 100%;
+  background-color: #3b82f6;
+  border-radius: 9999px;
+  width: 0%;
+}
+
+.progress-container-small .time-display {
+  justify-content: center;
+  margin-top: 3px;
+  font-size: 11px;
+  color: #8c8c8c;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-right-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 30%;
+  min-width: 100px;
+}
+
+/* Ajustar el espacio inferior para el footer cuando el reproductor está visible */
+.main-content {
+  padding-bottom: 50px;
+}
+
+/* Con reproductor y footer visibles - modificamos esto */
+.player-fixed:not(.hidden) ~ .app-footer {
+  bottom: 0; /* El footer se queda en su posición original */
+}
+
+/* Ajuste cuando el reproductor está visible */
+.player-fixed:not(.hidden) ~ .main-content {
+  padding-bottom: 0; /* Eliminamos completamente el padding inferior */
+}
+
+/* Ajuste de margen de la scrollbar cuando el reproductor está visible */
+.player-fixed:not(.hidden) ~ .main-content::-webkit-scrollbar-track {
+  margin-bottom: 50px; /* Reducimos significativamente el margen */
+}
+
+.player-fixed:not(.hidden) ~ .app-content .main-content {
+  padding-bottom: 0; /* Eliminamos completamente el padding inferior */
+}
+
+.time-text {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Estilos específicos para las páginas cuando la barra de búsqueda está oculta */
+#streaming-page {
+  padding-top: 10px;
+}
+
+/* Estilos para la barra de notificaciones */
+.notification-bar {
+  position: fixed;
+  top: 120px; /* Debajo de la barra de búsqueda */
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  max-width: 80%;
+  background-color: #1e2128;
+  border: 1px solid #2a2e38;
+  border-radius: 8px;
+  padding: 12px 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 950;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none; /* No interferir con clics */
+}
+
+.notification-bar.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.notification-bar.hidden {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-20px);
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.notification-icon {
+  color: #3b82f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-message {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Variantes de notificaciones */
+.notification-bar.success .notification-icon {
+  color: #10b981;
+}
+
+.notification-bar.error .notification-icon {
+  color: #ef4444;
+}
+
+.notification-bar.warning .notification-icon {
+  color: #f59e0b;
+}
+
+.notification-bar.info .notification-icon {
+  color: #3b82f6;
+}
+
+.notification-icon svg.hidden {
+  display: none;
+}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; img-src 'self' https://* data:; media-src 'self' https://*;"
+    />
+    <meta
+      http-equiv="X-Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; img-src 'self' https://* data:; media-src 'self' https://*;"
+    />
+    
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="styles/player.css">
+
+    <title>MiniMusic Player - Streaming</title>
+</head>
+<body>
+    <div class="navbar">
+        <a href="index.html">Descargar MP3</a>
+        <a href="streaming.html" class="active">Streaming</a>
+        <a href="buscar.html">Buscar Música</a>
+    </div>
+    
+    <div class="container">
+        <h1>Reproductor de Streaming</h1>
+        <div class="search-container">
+            <input type="text" id="url" placeholder="Pega el enlace de YouTube" class="entrada-url"/>
+            <button id="buscar">Buscar</button>
+        </div>
+        
+        <div id="player-container" class="hidden">
+            <div class="song-info">
+                <img id="thumbnail" src="" alt="Miniatura">
+                <div class="title-container">
+                    <h3 id="song-title">Título de la canción</h3>
+                </div>
+            </div>
+            
+            <audio id="audio-player" controls></audio>
+            
+            <div class="player-controls">
+                <button id="play-pause">Reproducir</button>
+            </div>
+        </div>
+        
+        <p id="estado"></p>
+        <div id="loader-container"></div>
+    </div>
+
+    <script src="js/streaming.js"></script>
+</body>
+</html> 
